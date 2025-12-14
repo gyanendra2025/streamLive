@@ -29,9 +29,11 @@ export async function signup(req, res) {
       return res.status(400).send("email already exists");
     }
 
-    const random_idx = Math.floor(Math.random() * 1000) + 1; // generate random number from 1 to 1000
-
-    const randomAvatar = `${process.env.RANDOM_AVATAR_URL}${random_idx}`;
+    const random_idx = Math.floor(Math.random() * 100) + 1;
+    
+    // Using ui-avatars.com - more reliable than external avatar services
+    const randomName = `User${random_idx}`;
+    const randomAvatar = `https://ui-avatars.com/api/?name=${randomName}&background=random&size=200`;
 
     const newuser = await User.create({
       email,
@@ -73,7 +75,7 @@ export async function signup(req, res) {
       httpOnly: true, // prevent xss attacks
       secure: process.env.NODE_ENV === "production", // set secure flag in production
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      sameSite: "Strict",
+      sameSite: "lax",
     });
 
     res.status(201).json({
@@ -122,10 +124,10 @@ export async function login(req, res) {
     });
 
     res.cookie("jwt", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: "Strict",
+      httpOnly: true, // prevent xss attacks
+      secure: process.env.NODE_ENV === "production", // set secure flag in production
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      sameSite: "lax",
     });
 
     res.status(200).json({
